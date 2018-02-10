@@ -1,4 +1,4 @@
-﻿#Start timer
+#Start timer
 cls
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -47,7 +47,7 @@ $dateFormat3 = $date.ToString("MM - MMM").ToUpper()
 Get-process -name excel -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 #File location for CSVs to be pulled from Digitus
-$getExportFolder = "c:\Path\To\Exports\*"
+$getExportFolder = "c:\Path\To\Biometric Audit Reports\Exports\*"
 
 #Test the path to see if anything is in the folder
 $tpExportsFolder = Test-Path $getExportFolder -Filter *.csv
@@ -181,8 +181,8 @@ If($tpExportsFolder -eq $True)
 
 
     #Get the folder name for the client
-    $getClientFolder = Get-ChildItem "c:\Path\To\$custID*"
-    $getClientFolderName = Get-ChildItem "c:\Path\To\$custID*" | % {$_.basename}
+    $getClientFolder = Get-ChildItem "c:\Path\To\Biometric Audit Reports\$custID*"
+    $getClientFolderName = Get-ChildItem "c:\Path\To\Biometric Audit Reports\$custID*" | % {$_.basename}
     
     #Main Folder
     Write-Host "Main Folder location set to: " -BackgroundColor Black -ForegroundColor Green -NoNewline
@@ -229,7 +229,7 @@ If($tpExportsFolder -eq $True)
         Write-Host "Running " -BackgroundColor Black -ForegroundColor White -NoNewline
         Write-host ".CSV" -BackgroundColor Black -ForegroundColor Magenta -NoNewline    
         Write-host " file merge process." -ForegroundColor White -BackgroundColor Black 
-        $getBioReportCSVbasename = Get-ChildItem "c:\Path\To\Exports\*.csv" | % { $_.basename }
+        $getBioReportCSVbasename = Get-ChildItem "c:\Path\To\Biometric Audit Reports\Exports\*.csv" | % { $_.basename }
     
         Write-Warning "This may take some time to complete."
 
@@ -242,14 +242,14 @@ If($tpExportsFolder -eq $True)
         {
             #New Headers "Date", "Location", "User"
             $newHeaders = "Date", "Location", "EventType", "EventSubType", "Status", "LastName", "User"
-            Get-Content "c:\Path\To\Exports\$file.csv" -Encoding Default | select -Skip 1 | ConvertFrom-Csv -UseCulture -Header $newHeaders | Export-Csv -Path $outChangeHeaders -Append -NoTypeInformation -Force
+            Get-Content "c:\Path\To\Biometric Audit Reports\Exports\$file.csv" -Encoding Default | select -Skip 1 | ConvertFrom-Csv -UseCulture -Header $newHeaders | Export-Csv -Path $outChangeHeaders -Append -NoTypeInformation -Force
             Write-Host "Replacing Headers for: " -BackgroundColor Black -ForegroundColor Green -NoNewline
             Write-Host "$file" -BackgroundColor Black -ForegroundColor White
             Write-Host "Moving File: " -BackgroundColor Black -ForegroundColor Green -NoNewline
             Write-Host "$file" -BackgroundColor Black -ForegroundColor White -NoNewline
             Write-Host " to " -BackgroundColor Black -ForegroundColor Green -NoNewline
             Write-Host "$getClientFolder\CSVArchive\$year\$dateFormat3" -BackgroundColor Black -ForegroundColor White
-            Move-Item -Path "c:\Path\To\Exports\$file.csv" -Destination $getClientFolder\CSVArchive\$year\$dateFormat3 -ErrorAction SilentlyContinue
+            #Move-Item -Path "c:\Path\To\Biometric Audit Reports\Exports\$file.csv" -Destination $getClientFolder\CSVArchive\$year\$dateFormat3 -ErrorAction SilentlyContinue
         }
 
         $nameArray = @()
@@ -975,6 +975,7 @@ If($tpExportsFolder -eq $True)
         $objExcel.Workbooks.close() 
         $objExcel.Quit()
 
+
         $source = "$getClientFolder\ExcelArchive\$year\$dateFormat3\$custID-EmployeeDCAccess-$DateFormat1.xlsx"
 
         $xlFixedFormat = [Microsoft.Office.Interop.Excel.XlFileFormat]::xlWorkbookDefault
@@ -1007,6 +1008,7 @@ If($tpExportsFolder -eq $True)
         #Then it becomes possible to insert text before
         $wdDoc = $Mail.Getinspector.WordEditor
         $wdRange = $wdDoc.Range()
+                       
         
         $Mail.Attachments.add("$getClientFolder\PDFArchive\$year\$dateFormat3\$custID-EmployeeDCAccess-$dateFormat1.pdf") | Out-Null
         $Mail.Display()
@@ -1017,8 +1019,13 @@ If($tpExportsFolder -eq $True)
         $xl.Workbooks.Close()
         $xl.Quit()
 
+
+
     }
 }
+
+
+
 
 #Get Script speed
 $date2 = Get-Date
