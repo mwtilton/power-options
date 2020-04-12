@@ -217,3 +217,337 @@ function Invoke-Sqlcmd2
 Invoke-Sqlcmd2
 
 #>
+
+
+#Fatal Error Handling
+Try{
+    If($_.Exception.ToString().Contains("something")){
+        Write-Host " already exists. Skipping!" -ForegroundColor DarkGreen
+    }
+    Else{
+
+        Write-host $_.Exception -ForegroundColor Yellow
+    }
+}
+Catch{
+    $_ | fl * -force
+    $_.InvocationInfo.BoundParameters | fl * -force
+    $_.Exception
+}
+
+#one line error thrower
+if ($?) {throw}
+
+#runAs Admin stuffs
+#R equires -RunAsAdministrator
+
+#DSC
+Get-DscResource * | Select -ExpandProperty Properties | ft -AutoSize
+Get-DscResource * -Syntax
+
+
+#Igonore SSL
+add-type @"
+    using System.Net;
+    using System.Security.Cryptography.X509Certificates;
+    public class TrustAllCertsPolicy : ICertificatePolicy {
+        public bool CheckValidationResult(
+            ServicePoint srvPoint, X509Certificate certificate,
+            WebRequest request, int certificateProblem) {
+            return true;
+        }
+    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+
+
+<#
+
+    https://techcommunity.microsoft.com/t5/ITOps-Talk-Blog/PowerShell-Basics-Finding-Your-Way-in-the-PowerShell-Console/ba-p/300935
+    PowerShell Basics: Finding Your Way in the PowerShell Console
+
+#>
+
+#Get-Command
+get-command -CommandType Function
+get-command -CommandType Function -name Get-*
+
+#Firewall
+get-command -name *firewall*
+get-command -name *netfirewallrule
+
+#Get-Help
+get-help set-netfirewallrule
+get-help set-netfirewallrule -examples
+help Set-NetFirewallRule -Full
+Help set-netfirewallrule -Parameter RemoteAddress
+
+#Get-Member
+get-service | Get-Member
+(Get-Service | Get-Member | Where-Object -Property Membertype -EQ Property).count
+Get-Service | Get-Member | Where-Object -Property Membertype -EQ Property
+get-service | format-table -Property Name,Status,ServicesDependedOn
+
+Get-Variable
+
+#Prompt Information
+(Get-Command prompt).definition
+(Get-Command Prompt).ScriptBlock
+
+#RawUI settings
+$(Get-Host).UI.RawUI
+
+#Check if you are in a nested powershell session
+$NestedPromptLevel
+
+#get running history of commands used
+Get-History
+
+#Making a new profile
+if (!(Test-Path -Path $profile)) {New-Item -ItemType File -Path $profile -Force}
+
+#profile information
+$PROFILE | select *
+
+#Git
+git checkout --track origin/<branch_name>
+
+# Connection to mysql database from dataset
+import dataset
+from CreatePointsDatabase import create_points_database
+
+db = dataset.connect('mssql+pymssql://mssql+pymssql://user:password@server:port/database')
+
+
+# Sending Email
+#Enter in Log ID information
+$id = ''
+
+#Enter in Log Name. You can use the Asterisk(*) symbol for wildcards
+$Logname = "Application"
+$event = Get-EventLog -LogName $Logname -InstanceId $id -Newest 1
+
+#Check Event log for error
+if ($event.EntryType -eq "Error")
+{
+    #region Variables and Arguments
+    $date = Get-Date -Format MM/dd/yy
+    $users = "Josh@Justic.net" # List of users to email your report to (separate by comma)
+    $fromemail = "USERNAME@gmail.com"
+    $SMTPServer = "smtp.gmail.com"
+    $SMTPPort = "587"
+    $SMTPUser = "USERNAME@gmail.com"
+    $SMTPPassword = "PASSWORD"
+    $ComputerName = gc env:computername
+    $EmailSubject = "COMPUTERNAME - New Event Log [Application] $date"
+    $MailSubject = $MailSubject -replace('COMPUTERNAME', $ComputerName)
+    $Credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $SMTPUser, $($SMTPPassword | ConvertTo-SecureString -AsPlainText -Force) 
+    $EnableSSL = $true
+    $ListOfAttachments = @()
+    $Report = @()
+    $CurrentTime = Get-Date
+    $PCName = $env:COMPUTERNAME
+    $EmailBody = $event | ConvertToHtml > elog.htm
+    $getHTML = Get-Content "elog.htm"
+    #sending email
+    send-mailmessage -from $fromemail -to $users -subject $EmailSubject -BodyAsHTML -body $getHTML -priority Normal -SmtpServer $SMTPServer -port $SMTPPort -UseSsl -Credential $Credentials
+    Remove-Item elog.htm
+}
+else
+{
+    write-host "No error found"
+    write-host "Here is the log entry that was inspected: $event"
+}
+
+# Moving from one repo to another
+1. Check out the existing repository from Bitbucket:
+$ git clone https://USER@bitbucket.org/USER/PROJECT.git
+
+2. Add the new Github repository as upstream remote of the repository checked out from Bitbucket:
+
+$ cd PROJECT
+$ git remote add upstream https://github.com:USER/PROJECT.git
+
+3. Checkout and track any extra branches you want to push to the new repo
+$ git checkout --track origin/dev
+
+4. Push all branches (below: just master) and tags to the Github repository:
+
+$ git push upstream master
+$ git push --tags upstream
+
+# PS ModulePath
+Import-Module '$($env:PSModulePath).Split(;)[1]\UCSD' -Force -ErrorAction Stop;
+
+# .lnk file to run ps script
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -executinpolicy unrestricted -file "F:\ipconfig.ps1"
+
+
+<#
+Set-ExecutionPolicy RemoteSigned
+$UserCredential = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $UserCredential -Authentication Basic -AllowRedirection
+Import-PSSession $Session -DisableNameChecking
+Start-transcript
+get-mailbox -identity |FL
+connect-msolservice
+install-module msonline
+";
+
+        //holding
+        public static string PSholding = @"
+Get-VM | where-object {$_.PowerState -eq ""PoweredOn"" -or $_.PowerState -eq ""Suspended"" -and $_.Name -notlike ""*vCenter*""}| select Name
+#
+# DO NOT UNCOMMENT. HIGHLY RADIOACTIVE ISOTOPES!!!
+#
+#Get-VM | where-object {$_.PowerState -eq ""PoweredOn"" -or $_.PowerState -eq ""Suspended"" -and $_.Name-notlike ""*vCenter*""} | Stop-VM -Confirm:$false ##|shutdown-vmguest -Confirm:$false
+#
+	
+function Get-FolderByPath{
+  <# .SYNOPSIS Retrieve folders by giving a path .DESCRIPTION The function will retrieve a folder by it's path. The path can contain any type of leave (folder or datacenter). .NOTES Author: Luc Dekens .PARAMETER Path The path to the folder. This is a required parameter. .PARAMETER Path The path to the folder. This is a required parameter. .PARAMETER Separator The character that is used to separate the leaves in the path. The default is '/' .EXAMPLE PS> Get-FolderByPath -Path ""Folder1/Datacenter/Folder2""
+.EXAMPLE
+  PS> Get-FolderByPath -Path ""Folder1>Folder2"" -Separator '>'
+#>
+ 
+  param(
+  [CmdletBinding()]
+  [parameter(Mandatory = $true)]
+  [System.String[]]${Path
+    },
+  [char]${Separator
+} = '/'
+  )
+ 
+  process{
+    if((Get-PowerCLIConfiguration).DefaultVIServerMode -eq ""Multiple""){
+      $vcs = $defaultVIServers
+    }
+    else{
+      $vcs = $defaultVIServers[0]
+    }
+ 
+    foreach($vc in $vcs){
+      foreach($strPath in $Path){
+        $root = Get-Folder -Name Datacenters -Server $vc
+        $strPath.Split($Separator) | %{
+          $root = Get-Inventory -Name $_ -Location $root -Server $vc -NoRecursion
+          if((Get-Inventory -Location $root -NoRecursion | Select -ExpandProperty Name) -contains ""vm""){
+            $root = Get-Inventory -Name ""vm"" -Location $root -Server $vc -NoRecursion
+          }
+        }
+        $root | where {$_ -is [VMware.VimAutomation.ViCore.Impl.V1.Inventory.FolderImpl]}|%{
+          Get-Folder -Name $_.Name -Location $root.Parent -NoRecursion -Server $vc
+        }
+      }
+    }
+  }
+}
+
+
+ Get-vCD-VM-Detail
+PowerShell
+# Get a list of vCloud Orgs vDCs
+$ListOrgVDC = Get-OrgVdc | Sort-Object -Property Name
+
+# Write the list and prompt for input
+write-host """"
+write-host ""$ListOrgVDC""
+$OrgVDC = read-host ""Please Enter the Name of the OrgVDC""
+$vms = Get-OrgVdc -Name $OrgVDC | get-civm
+$objects = @()
+
+# Jakes Smarts
+foreach($vm in $vms)
+{
+ $hardware = $vm.ExtensionData.GetVirtualHardwareSection()
+ $diskMB = (($hardware.Item | where {$_.resourcetype.value -eq ""17""}) | %{$_.hostresource[0].anyattr[0].""#text""} | Measure-Object -Sum).sum
+ $row = New-Object PSObject -Property @{""vapp"" = $vm.vapp; ""name""=$vm.Name;""cpuCount""=$vm.CpuCount;""memoryGB""=$vm.MemoryGB;""storageGB""=($diskMB/1024)}
+ $objects += $row
+}
+
+
+# Use select object to get the column order right. Sort by vApp. Force table formatting and auto-width.
+$objects | select-Object name, vapp, cpuCount, memoryGB, storageGB | Sort-Object -Property vapp | Format-Table -AutoSize
+
+# Also Export results to CVS for further processing
+$objects | Export-Csv ""$OrgVDC.csv"" -NoTypeInformation -UseCulture
+
+	
+# Get a list of vCloud Orgs vDCs
+$ListOrgVDC = Get-OrgVdc | Sort-Object -Property Name
+
+# Write the list and prompt for input
+write-host """"
+write-host ""$ListOrgVDC""
+$OrgVDC = read-host ""Please Enter the Name of the OrgVDC""
+$vms = Get-OrgVdc -Name $OrgVDC | get-civm
+$objects = @()
+ 
+# Jakes Smarts
+foreach($vm in $vms)
+{
+ $hardware = $vm.ExtensionData.GetVirtualHardwareSection()
+ $diskMB = (($hardware.Item | where {$_.resourcetype.value -eq ""17""}) | %{$_.hostresource[0].anyattr[0].""#text""} | Measure-Object -Sum).sum
+ $row = New-Object PSObject -Property @{""vapp"" = $vm.vapp; ""name""=$vm.Name;""cpuCount""=$vm.CpuCount;""memoryGB""=$vm.MemoryGB;""storageGB""=($diskMB/1024)}
+ $objects += $row
+}
+ 
+ 
+# Use select object to get the column order right. Sort by vApp. Force table formatting and auto-width.
+$objects | select-Object name, vapp, cpuCount, memoryGB, storageGB | Sort-Object -Property vapp | Format-Table -AutoSize
+ 
+# Also Export results to CVS for further processing
+$objects | Export-Csv ""$OrgVDC.csv"" -NoTypeInformation -UseCulture
+
+Get-vORG-VM-Detail
+PowerShell
+# Get a list of vCloud Orgs
+$ListOrg = Get-Org | Sort-Object -Property Name
+# Write the list and prompt for input
+write-host ""$ListOrg""
+write-host """"
+$Org = read-host ""Please Enter the Name of the Org""
+$vms = Get-Org -Name $Org | get-civm
+$objects = @()
+
+# Jakes Smarts
+foreach($vm in $vms)
+{
+ $hardware = $vm.ExtensionData.GetVirtualHardwareSection()
+ $diskMB = (($hardware.Item | where {$_.resourcetype.value -eq ""17""}) | %{$_.hostresource[0].anyattr[0].""#text""} | Measure-Object -Sum).sum
+ $row = New-Object PSObject -Property @{""vapp"" = $vm.vapp; ""name""=$vm.Name;""cpuCount""=$vm.CpuCount;""memoryGB""=$vm.MemoryGB;""storageGB""=($diskMB/1024)}
+ $objects += $row
+}
+
+# Use select object to get the column order right. Sort by vApp. Force table formatting and auto-width.
+$objects | select-Object name, vapp, cpuCount, memoryGB, storageGB | Sort-Object -Property vapp | Format-Table -AutoSize
+
+# Also Export results to CVS for further processing
+$objects | Export-Csv ""$Org.csv"" -NoTypeInformation -UseCulture
+
+
+	
+# Get a list of vCloud Orgs
+$ListOrg = Get-Org | Sort-Object -Property Name
+# Write the list and prompt for input
+write-host ""$ListOrg""
+write-host """"
+$Org = read-host ""Please Enter the Name of the Org""
+$vms = Get-Org -Name $Org | get-civm
+$objects = @()
+ 
+# Jakes Smarts
+foreach($vm in $vms)
+{
+ $hardware = $vm.ExtensionData.GetVirtualHardwareSection()
+ $diskMB = (($hardware.Item | where {$_.resourcetype.value -eq ""17""}) | %{$_.hostresource[0].anyattr[0].""#text""} | Measure-Object -Sum).sum
+ $row = New-Object PSObject -Property @{""vapp"" = $vm.vapp; ""name""=$vm.Name;""cpuCount""=$vm.CpuCount;""memoryGB""=$vm.MemoryGB;""storageGB""=($diskMB/1024)}
+ $objects += $row
+}
+ 
+# Use select object to get the column order right. Sort by vApp. Force table formatting and auto-width.
+$objects | select-Object name, vapp, cpuCount, memoryGB, storageGB | Sort-Object -Property vapp | Format-Table -AutoSize
+ 
+# Also Export results to CVS for further processing
+$objects | Export-Csv ""$Org.csv"" -NoTypeInformation -UseCulture
+#>
