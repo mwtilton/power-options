@@ -551,3 +551,12 @@ $objects | select-Object name, vapp, cpuCount, memoryGB, storageGB | Sort-Object
 # Also Export results to CVS for further processing
 $objects | Export-Csv ""$Org.csv"" -NoTypeInformation -UseCulture
 #>
+
+# Operating System build information
+$psversiontable
+System.Environment]::OSVersion.Version
+(Get-WmiObject -class Win32_OperatingSystem).Caption
+(Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name ReleaseId).ReleaseId
+
+# Updating WSL2 for Docker on Windows Home Edition
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
