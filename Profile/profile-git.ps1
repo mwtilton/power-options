@@ -3,7 +3,6 @@ $PSDefaultParameterValues=@{'Write-host:BackGroundColor'='Black';'Write-host:For
 
 Import-Module ActiveDirectory -Force
 Import-Module Posh-Git -Force
-Import-module "$env:ONEDRIVE\Scripts\UCSD\UCSD.psm1" -force
 
 $psversiontable.PSVersion
 
@@ -45,7 +44,6 @@ Function Prompt {
     #Write-Host "[$((Get-Date).timeofday.tostring().substring(0,8))] " -NoNewline
     Write-Host "PS " -nonewline -ForegroundColor $adminfg
     #$GitPromptSettings.DefaultPromptPrefix = '[$(hostname)] '
-    #$GitPromptSettings.DefaultPromptPath = "$env:ONEDRIVE\Scripts\UCSD"
     $GitPromptSettings.DefaultPromptAbbreviateHomeDirectory = $true
     #$GitPromptSettings.DefaultPromptPath.ForegroundColor = 'Orange'
     #$GitPromptSettings.DefaultPromptPath.ForegroundColor = "orange"#$fg
@@ -57,18 +55,15 @@ Function Prompt {
     #Write-Output "' $((Get-History -Count 1).id + 1)$(">" * ($nestedPromptLevel + 1)) "
 }
 
-Set-Location "$env:ONEDRIVE\Scripts\UCSD"
-
-
 Register-EngineEvent PowerShell.Exiting -Action {
 
-Write-Host "  [>] " -NoNewline
-Write-Host " Finishing post processing"
+    Write-Host "  [>] " -NoNewline
+    Write-Host " Finishing post processing"
 
-Write-Host "    [+] " -NoNewline
-Write-Host " Removing pssessions"
+    Write-Host "    [+] " -NoNewline
+    Write-Host " Removing pssessions"
 
-Get-PSSession | Remove-PSSession
+    Get-PSSession | Remove-PSSession
 
-sleep 2
+    sleep 2
 }

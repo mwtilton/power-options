@@ -56,19 +56,5 @@
             [PSCustomObject] $resultObject
         }
 }
-$uri = "http://10.31.24.31/summary.html"
-
-$user = 'admn'
-$pass = 'admn'
-$pair = "$($user):$($pass)"
-$encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
-$basicAuthValue = "Basic $encodedCreds"
-$Headers = @{
-    Authorization = $basicAuthValue
-}
-
-$InfoPage = Invoke-Webrequest -Uri $Uri -Headers $Headers 
-
-Get-DataTable $InfoPage -TableNumber 4 | Format-Table -AutoSize
 
 

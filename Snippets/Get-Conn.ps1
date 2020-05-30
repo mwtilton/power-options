@@ -47,5 +47,3 @@ function Test-SQLDatabase
         }
     }
 }
-
-Test-SQLDatabase -Server 199.187.242.17:45005 -Database intercomsql -Username sa -Password F0ward
