@@ -8,7 +8,7 @@ $year = $date.ToString("yyyy")
 
 Write-host "{                                                                                       }" -BackgroundColor Black -ForegroundColor Green 
 Write-host "                                                                                         " -BackgroundColor Black -ForegroundColor Green 
-Write-host "                                [     ScaleMatrix    ]                                   " -BackgroundColor Black -ForegroundColor Green
+Write-host "                                [     Company    ]                                   " -BackgroundColor Black -ForegroundColor Green
 Write-host "                                                                                         " -BackgroundColor Black -ForegroundColor Green
 Write-host "{                                                                                       }" -BackgroundColor Black -ForegroundColor Green
 
