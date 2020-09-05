@@ -730,3 +730,14 @@ function Invoke-Sqlcmd2
 Invoke-Sqlcmd2
 
 #>
+
+$InstalledSoftware = Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
+foreach($obj in $InstalledSoftware){write-host $obj.GetValue('DisplayName') -NoNewline; write-host " - " -NoNewline; write-host $obj.GetValue('DisplayVersion')}
+
+Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | select DisplayName,DisplayVersion |out-file $env:USERPROfile\Desktop\HKCU-Software.txt
+Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall" | select DisplayName,DisplayVersion |out-file $env:USERPROfile\Desktop\HKLM-Software.txt
+
+Get-WinEvent -ProviderName msiinstaller | where id -eq 1033 | select timecreated,message | Ft -a | Out-File $env:USERPROFILE\Desktop\WinEvent-Software.txt
+
+# Get All History
+type $env:USERPROFILE\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt | Out-File $env:USERPROFILE\Desktop\ConsoleHost_history.txt
